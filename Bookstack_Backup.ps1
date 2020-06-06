@@ -32,3 +32,6 @@ SFTPSession
 $SSHIndex = Get-SSHSession | Select-Object SessionId
 Invoke-SSHCommand -SessionId $SSHIndex.SessionId -Command "rm bookstack*" -Verbose
 Remove-SSHSession -SessionId $SSHIndex.SessionId
+
+#Remove the older Bookstack backups (Set to 2 days before)
+Get-ChildItem -Path "C:\Users\user\OneDrive\Bookstack" -Directory -recurse| where {$_.CreationTime -le $(get-date).Adddays(-2)} | Remove-Item -recurse -force
