@@ -1,4 +1,18 @@
-﻿#Backup Bookstack Website
+#Function for later on in the script
+function successfulbackup {
+    $token = (Get-Content -Path C:\temp\telegrambot\token.txt)
+    $chatid = (Get-Content -Path C:\temp\telegrambot\chatid.txt)
+    $Message = "Bookstack Backup successful"
+    & 'C:\Program Files\PowerShell\7\pwsh.exe' -Command { $token = (Get-Content -Path C:\temp\telegrambot\token.txt);$chatid = (Get-Content -Path C:\temp\telegrambot\chatid.txt); $Message = "Bookstack Backup successful";Send-TelegramTextMessage -BotToken $token -ChatID $chatid -Message $Message}
+    }
+function failedbackup {
+    $token = (Get-Content -Path C:\temp\telegrambot\token.txt)
+    $chatid = (Get-Content -Path C:\temp\telegrambot\chatid.txt)
+    $Message = "Bookstack failed to backup"
+    & 'C:\Program Files\PowerShell\7\pwsh.exe' -Command { $token = (Get-Content -Path C:\temp\telegrambot\token.txt);$chatid = (Get-Content -Path C:\temp\telegrambot\chatid.txt); $Message = "Bookstack failed to backup";Send-TelegramTextMessage -BotToken $token -ChatID $chatid -Message $Message}
+    } 
+
+#Backup Bookstack Website
 New-item -ItemType "Directory" -Path C:\Users\user\OneDrive\Bookstack\.\$((Get-Date).ToString('dd-MM-yyyy'))
 #Variables - Secure Password created already
 $User = "root"
@@ -35,3 +49,9 @@ Remove-SSHSession -SessionId $SSHIndex.SessionId
 
 #Remove the older Bookstack backups (Set to 2 days before)
 Get-ChildItem -Path "C:\Users\user\OneDrive\Bookstack" -Directory -recurse| where {$_.CreationTime -le $(get-date).Adddays(-2)} | Remove-Item -recurse -force
+
+#See if backup was successful or failed - alerts are sent from telegram
+$Foldername = Get-ChildItem -Path C:\Users\user\OneDrive\Bookstack\(Get-Date).ToString('dd-MM-yyyy') -Directory
+if ($Foldername) 
+{ successfulbackup }
+else { failedbackup }
